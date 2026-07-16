@@ -4,6 +4,13 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: 'ispjadjc',
+  api_key: '124741436514314',
+  api_secret: '-i1JaQvwV-x6fqxuoOJq0ZUFMss'
+});
 
 export async function getOrCreateDummyUser() {
   let user = await prisma.user.findFirst();
@@ -55,15 +62,15 @@ export async function createArticle(formData: FormData) {
     const arrayBuffer = await imageFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadsDir, { recursive: true });
-    
-    const ext = imageFile.name.split('.').pop() || 'jpg';
-    const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${ext}`;
-    const filePath = path.join(uploadsDir, fileName);
-    
-    await fs.writeFile(filePath, buffer);
-    imageUrl = `/uploads/${fileName}`;
+    imageUrl = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: 'zonasvara' },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result?.secure_url as string);
+        }
+      ).end(buffer);
+    });
   }
   
   if (!title || !content || !categoryName) {
