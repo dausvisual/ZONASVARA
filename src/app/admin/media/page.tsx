@@ -51,7 +51,7 @@ export default async function AdminMediaPage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-              {articles.filter(a => a.thumbnail?.startsWith("http")).length}
+              {articles.filter((a: any) => a.thumbnail?.startsWith("http")).length}
             </p>
             <p className="text-xs text-slate-500">Gambar Eksternal</p>
           </div>
@@ -62,7 +62,7 @@ export default async function AdminMediaPage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-              {articles.filter(a => a.thumbnail?.startsWith("/")).length}
+              {articles.filter((a: any) => a.thumbnail?.startsWith("/")).length}
             </p>
             <p className="text-xs text-slate-500">Upload Lokal</p>
           </div>
