@@ -19,11 +19,19 @@ export default function RichTextEditor({ name, initialContent = '' }: RichTextEd
   const [content, setContent] = useState(initialContent);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Disable StarterKit's link so we can use our own Link extension
+        // StarterKit does NOT include link by default — this fixes the duplicate warning
+      }),
       Image,
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
       }),
     ],
     content: initialContent,
@@ -36,6 +44,7 @@ export default function RichTextEditor({ name, initialContent = '' }: RichTextEd
       setContent(editor.getHTML());
     },
   });
+
 
   if (!editor) {
     return null;
