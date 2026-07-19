@@ -3,6 +3,7 @@ import { ChevronRight, TrendingUp } from "lucide-react";
 
 export default function KategoriIndexPage() {
   const categories = [
+    { name: "News", slug: "news", count: "30%", color: "bg-purple-500" },
     { name: "Nasional", slug: "nasional", count: "34%", color: "bg-primary" },
     { name: "Politik", slug: "politik", count: "25%", color: "bg-secondary" },
     { name: "Ekonomi", slug: "ekonomi", count: "18%", color: "bg-accent" },

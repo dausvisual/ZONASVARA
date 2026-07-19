@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 export default function RootLayout({
   children,
@@ -38,12 +39,13 @@ export default function RootLayout({
       className={`${inter.variable} ${poppins.variable} ${roboto.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans pb-[60px] lg:pb-0">
         <Header />
         <main className="flex-grow">
           {children}
         </main>
         <Footer />
+        <MobileNav />
       </body>
     </html>
   );

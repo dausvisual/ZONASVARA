@@ -4,6 +4,7 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 import { createArticle } from "@/app/actions/article";
 import { getCategories } from "@/app/actions/category";
 import { redirect } from "next/navigation";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export default async function CreateArticlePage() {
   const categories = await getCategories();
@@ -96,12 +97,7 @@ export default async function CreateArticlePage() {
         </div>
 
         <div className="flex justify-end pt-4 border-t border-border">
-          <button 
-            type="submit" 
-            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2.5 rounded-md font-medium flex items-center gap-2 transition-colors"
-          >
-            <Save size={18} /> Terbitkan Artikel
-          </button>
+          <SubmitButton />
         </div>
       </form>
     </div>

@@ -7,6 +7,52 @@ import prisma from "@/lib/prisma";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
+import { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  
+  const article = await prisma.article.findUnique({
+    where: { slug: resolvedParams.slug },
+  });
+
+  if (!article) {
+    return {
+      title: "Berita Tidak Ditemukan - ZONASVARA SPACE",
+    };
+  }
+
+  // Menghilangkan tag HTML dari konten untuk description (opsional, max 160 char)
+  const plainTextDesc = article.summary || article.content.replace(/<[^>]+>/g, '').substring(0, 160) + "...";
+
+  return {
+    title: `${article.title} - ZONASVARA SPACE`,
+    description: plainTextDesc,
+    openGraph: {
+      title: article.title,
+      description: plainTextDesc,
+      url: `https://zonasvaraspace.com/berita/${article.slug}`, // ganti dengan domain asli
+      siteName: 'ZONASVARA SPACE',
+      images: [
+        {
+          url: article.thumbnail || 'https://zonasvaraspace.com/logo-utama.png', 
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+      type: 'article',
+      publishedTime: article.createdAt.toISOString(),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: plainTextDesc,
+      images: [article.thumbnail || 'https://zonasvaraspace.com/logo-utama.png'],
+    },
+  };
+}
+
 export default async function NewsDetail({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   

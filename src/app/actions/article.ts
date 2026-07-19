@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
+import bcrypt from "bcryptjs";
 
 cloudinary.config({
   cloud_name: 'ispjadjc',
@@ -15,12 +16,20 @@ cloudinary.config({
 export async function getOrCreateDummyUser() {
   let user = await prisma.user.findFirst();
   if (!user) {
+    const hashedPassword = await bcrypt.hash("zonasvara1712", 10);
     user = await prisma.user.create({
       data: {
         name: "Admin Zonasvara",
-        email: "admin@zonasvara.com",
+        email: "admin@zonasvaraspace",
+        password: hashedPassword,
         role: "SUPER_ADMIN",
       },
+    });
+  } else if (!user.password) {
+    const hashedPassword = await bcrypt.hash("zonasvara1712", 10);
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword },
     });
   }
   return user;
@@ -58,21 +67,6 @@ export async function createArticle(formData: FormData) {
   
   const imageFile = formData.get("imageFile") as File | null;
   
-  if (imageFile && imageFile.size > 0) {
-    const arrayBuffer = await imageFile.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    imageUrl = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: 'zonasvara' },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result?.secure_url as string);
-        }
-      ).end(buffer);
-    });
-  }
-  
   if (!title || !content || !categoryName) {
     return { error: "Semua kolom (Judul, Konten, Kategori) wajib diisi." };
   }
@@ -80,6 +74,25 @@ export async function createArticle(formData: FormData) {
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Math.floor(Math.random() * 1000);
   
   try {
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      imageUrl = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { 
+            folder: 'zonasvara',
+            format: 'webp',
+            quality: 'auto'
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result?.secure_url as string);
+          }
+        ).end(buffer);
+      });
+    }
+
     const user = await getOrCreateDummyUser();
     const category = await getOrCreateCategory(categoryName);
     
@@ -106,6 +119,19 @@ export async function createArticle(formData: FormData) {
 
 export async function deleteArticle(id: string) {
   try {
+    const article = await prisma.article.findUnique({ where: { id } });
+    
+    if (article?.thumbnail && article.thumbnail.includes('res.cloudinary.com')) {
+      const urlParts = article.thumbnail.split('/');
+      const filenameWithExt = urlParts.pop();
+      const folderName = urlParts.pop();
+      if (filenameWithExt && folderName) {
+        const publicId = `${folderName}/${filenameWithExt.split('.')[0]}`;
+        // Hapus dari cloudinary
+        await cloudinary.uploader.destroy(publicId);
+      }
+    }
+
     await prisma.article.delete({ where: { id } });
     revalidatePath("/admin/articles");
     revalidatePath("/");

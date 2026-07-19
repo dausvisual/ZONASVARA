@@ -14,7 +14,7 @@ export function Footer() {
           <div className="space-y-6">
             <div className="relative w-[200px] h-[55px] bg-white rounded p-2">
               <Image 
-                src="/zonasvara-logo.png" 
+                src="/logo-utama.png" 
                 alt="ZONASVARA SPACE Logo" 
                 fill 
                 sizes="200px"
@@ -39,6 +39,7 @@ export function Footer() {
               Kategori
             </h3>
             <ul className="grid grid-cols-2 gap-y-3 text-sm">
+              <li><Link href="/kategori/news" className="hover:text-white transition-colors">News</Link></li>
               <li><Link href="/kategori/nasional" className="hover:text-white transition-colors">Nasional</Link></li>
               <li><Link href="/kategori/politik" className="hover:text-white transition-colors">Politik</Link></li>
               <li><Link href="/kategori/ekonomi" className="hover:text-white transition-colors">Ekonomi</Link></li>
@@ -79,15 +80,15 @@ export function Footer() {
               <ul className="space-y-4 text-sm">
                 <li className="flex items-start gap-3">
                   <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
-                  <span className="text-slate-400">Gedung Zonasvara Lt. 5, Jl. Sudirman Kav. 50, Jakarta Selatan 12930</span>
+                  <span className="text-slate-400">Jakarta, Indonesia</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="text-primary shrink-0" />
-                  <span className="text-slate-400">+62 21 5555 1234</span>
+                  <span className="text-slate-400">08158772217</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail size={18} className="text-primary shrink-0" />
-                  <span className="text-slate-400">redaksi@zonasvara.space</span>
+                  <span className="text-slate-400">zonasvaraspace@gmail.com</span>
                 </li>
               </ul>
             </div>
@@ -110,13 +111,8 @@ export function Footer() {
 
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p className="text-slate-500 font-medium">
-            &copy; {currentYear} ZONASVARA SPACE. All rights reserved. <br/>
-            <span className="text-xs font-normal italic">*Seluruh konten berita merupakan hak cipta dan bersumber dari <a href="https://news.detik.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors underline">news.detik.com</a>, ditampilkan semata untuk keperluan demonstrasi UI/UX portofolio.</span>
+            &copy; {currentYear} ZONASVARA SPACE. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            <Link href="/rss" className="hover:text-slate-300">RSS Feed</Link>
-            <Link href="/sitemap" className="hover:text-slate-300">Sitemap</Link>
-          </div>
         </div>
       </div>
     </footer>

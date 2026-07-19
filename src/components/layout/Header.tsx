@@ -30,20 +30,12 @@ export function Header() {
   };
 
   return (
-    <header className="w-full bg-background border-b border-border sticky top-0 z-50 transition-colors duration-300">
-      {/* Top Bar */}
-      <div className="bg-primary text-primary-foreground py-2 px-4 md:px-8 text-xs flex justify-between items-center">
+    <header className="w-full bg-background border-b border-border sticky top-0 z-50 transition-colors duration-300 shadow-sm">
+      
+      {/* Desktop Top Bar (Hidden on Mobile) */}
+      <div className="hidden lg:flex bg-primary text-primary-foreground py-2 px-8 text-xs justify-end items-center">
         <div className="flex items-center gap-4">
-          <span className="bg-accent text-accent-foreground px-2 py-1 font-bold rounded-sm shrink-0">BREAKING NEWS</span>
-          <div className="overflow-hidden whitespace-nowrap hidden sm:block max-w-[300px] md:max-w-md lg:max-w-lg">
-            <p className="animate-marquee inline-block">
-              Pemerintah Dorong Transformasi Digital di Sektor Pendidikan...
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <span className="hidden md:inline-block">{currentDate}</span>
+          <span>{currentDate}</span>
           <div className="flex items-center gap-2">
             <Link href="#" className="hover:text-secondary transition-colors"><FaFacebook size={14} /></Link>
             <Link href="#" className="hover:text-secondary transition-colors"><FaTwitter size={14} /></Link>
@@ -53,16 +45,25 @@ export function Header() {
         </div>
       </div>
 
-      {/* Main Navigation */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="relative w-[180px] h-[50px]">
+      {/* Main Navigation Area */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 lg:py-4 flex items-center justify-between">
+        
+        {/* Mobile Left: Hamburger */}
+        <div className="lg:hidden flex items-center">
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-900 dark:text-white p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+            {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
+          </button>
+        </div>
+
+        {/* Logo (Centered on Mobile, Left on Desktop) */}
+        <Link href="/" className="flex items-center justify-center lg:justify-start flex-grow lg:flex-grow-0">
+          <div className="relative w-[180px] h-[55px] lg:w-[220px] lg:h-[65px]">
             <Image 
-              src="/zonasvara-logo.png" 
+              src="/logo-utama.png" 
               alt="ZONASVARA SPACE Logo" 
               fill 
-              sizes="180px"
-              className="object-contain object-left"
+              sizes="(max-width: 1024px) 180px, 220px"
+              className="object-contain object-center lg:object-left"
               priority
             />
           </div>
@@ -79,8 +80,8 @@ export function Header() {
                 <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
-            {/* Mega Menu Dropdown */}
             <div className="absolute top-full left-1/2 -translate-x-1/2 w-[600px] bg-background border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 grid grid-cols-3 p-6 gap-4">
+              <Link href="/kategori/news" className="hover:text-primary hover:bg-muted p-2 rounded transition-colors">News</Link>
               <Link href="/kategori/nasional" className="hover:text-primary hover:bg-muted p-2 rounded transition-colors">Nasional</Link>
               <Link href="/kategori/politik" className="hover:text-primary hover:bg-muted p-2 rounded transition-colors">Politik</Link>
               <Link href="/kategori/ekonomi" className="hover:text-primary hover:bg-muted p-2 rounded transition-colors">Ekonomi</Link>
@@ -94,41 +95,53 @@ export function Header() {
           <Link href="/indeks" className="hover:text-primary transition-colors">INDEKS</Link>
         </nav>
 
-        <div className="hidden lg:flex items-center gap-4">
-          <Link href="/search" className="text-foreground hover:text-primary transition-colors">
-            <Search size={20} />
-          </Link>
-          <button onClick={toggleDarkMode} className="text-foreground hover:text-primary transition-colors">
+        {/* Right Section */}
+        <div className="flex items-center gap-2 lg:gap-4">
+          <button onClick={toggleDarkMode} className="hidden lg:flex text-foreground hover:text-primary transition-colors p-2">
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <Link href="/live" className="bg-accent text-accent-foreground px-4 py-1.5 rounded-full font-bold text-sm hover:bg-red-700 transition-colors shadow-sm">
+          
+          <Link href="/search" className="text-slate-900 dark:text-white p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+            <Search size={24} />
+          </Link>
+
+          <Link href="/live" className="hidden lg:block bg-accent text-accent-foreground px-4 py-1.5 rounded-full font-bold text-sm hover:bg-red-700 transition-colors shadow-sm">
             LIVE
           </Link>
         </div>
+      </div>
 
-        {/* Mobile Toggle */}
-        <div className="lg:hidden flex items-center gap-4">
-           <button onClick={toggleDarkMode} className="text-foreground hover:text-primary transition-colors">
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-foreground hover:text-primary transition-colors">
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+      {/* Breaking News Banner (Full Width) */}
+      <div className="w-full bg-[#0f172a] text-white flex items-center overflow-hidden h-[40px] border-t border-slate-200 dark:border-slate-800">
+        <div className="bg-[#cc0000] h-full flex items-center px-4 shrink-0 font-bold text-xs md:text-sm uppercase z-10 skew-x-[-15deg] -ml-2 border-r-[8px] border-[#0f172a]">
+          <span className="skew-x-[15deg] ml-2 tracking-wide">BREAKING NEWS</span>
+        </div>
+        <div className="overflow-hidden whitespace-nowrap flex-grow flex items-center h-full px-4 text-xs md:text-sm font-medium">
+          <p className="animate-marquee inline-block text-slate-200">
+            Pemerintah Dorong Transformasi Digital di Sektor Pendidikan • Inflasi April 2024 Terkendali • Pemilu 2024 Partisipasi Masyarakat Meningkat
+          </p>
         </div>
       </div>
 
-      {/* Mobile Nav */}
+      {/* Mobile Menu Drawer */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-background border-b border-border shadow-lg py-4 px-4 flex flex-col gap-4 font-semibold text-sm">
-           <Link href="/" className="hover:text-primary transition-colors">HOME</Link>
-          <Link href="/berita" className="hover:text-primary transition-colors">BERITA</Link>
-          <Link href="/kategori" className="hover:text-primary transition-colors">KATEGORI</Link>
-          <Link href="/video" className="hover:text-primary transition-colors">VIDEO</Link>
-          <Link href="/opini" className="hover:text-primary transition-colors">OPINI</Link>
-          <Link href="/indeks" className="hover:text-primary transition-colors">INDEKS</Link>
-           <Link href="/live" className="bg-accent text-accent-foreground px-4 py-2 rounded font-bold text-center hover:bg-red-700 transition-colors mt-2">
-            LIVE STREAMING
-          </Link>
+        <div className="lg:hidden absolute top-full left-0 w-full bg-background border-b border-border shadow-lg py-4 px-4 flex flex-col gap-4 font-semibold text-sm h-[calc(100vh-100px)] overflow-y-auto">
+          <Link href="/" className="hover:text-primary p-2 border-b border-border">HOME</Link>
+          <Link href="/berita" className="hover:text-primary p-2 border-b border-border">BERITA</Link>
+          <Link href="/kategori" className="hover:text-primary p-2 border-b border-border">KATEGORI</Link>
+          <Link href="/video" className="hover:text-primary p-2 border-b border-border">VIDEO</Link>
+          <Link href="/opini" className="hover:text-primary p-2 border-b border-border">OPINI</Link>
+          <Link href="/indeks" className="hover:text-primary p-2 border-b border-border">INDEKS</Link>
+          <Link href="/login" className="hover:text-primary p-2 border-b border-border">LOGIN</Link>
+          
+          <div className="mt-4 flex flex-col gap-4">
+            <button onClick={toggleDarkMode} className="flex items-center gap-2 p-2 w-full text-left">
+              {isDarkMode ? <><Sun size={18} /> Mode Terang</> : <><Moon size={18} /> Mode Gelap</>}
+            </button>
+            <Link href="/live" className="bg-accent text-accent-foreground px-4 py-3 rounded font-bold text-center flex justify-center w-full uppercase">
+              LIVE STREAMING
+            </Link>
+          </div>
         </div>
       )}
     </header>
