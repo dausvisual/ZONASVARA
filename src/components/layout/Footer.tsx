@@ -32,80 +32,68 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Kategori */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-5 bg-primary block rounded-full"></span>
-              Kategori
-            </h3>
-            <ul className="grid grid-cols-2 gap-y-3 text-sm">
-              <li><Link href="/kategori/news" className="hover:text-white transition-colors">News</Link></li>
-              <li><Link href="/kategori/nasional" className="hover:text-white transition-colors">Nasional</Link></li>
-              <li><Link href="/kategori/politik" className="hover:text-white transition-colors">Politik</Link></li>
-              <li><Link href="/kategori/ekonomi" className="hover:text-white transition-colors">Ekonomi</Link></li>
-              <li><Link href="/kategori/hukum" className="hover:text-white transition-colors">Hukum</Link></li>
-              <li><Link href="/kategori/pendidikan" className="hover:text-white transition-colors">Pendidikan</Link></li>
-              <li><Link href="/kategori/teknologi" className="hover:text-white transition-colors">Teknologi</Link></li>
-              <li><Link href="/kategori/olahraga" className="hover:text-white transition-colors">Olahraga</Link></li>
-              <li><Link href="/kategori/gaya-hidup" className="hover:text-white transition-colors">Gaya Hidup</Link></li>
-              <li><Link href="/kategori/internasional" className="hover:text-white transition-colors">Internasional</Link></li>
-              <li><Link href="/kategori/otomotif" className="hover:text-white transition-colors">Otomotif</Link></li>
-            </ul>
-          </div>
-
-          {/* Perusahaan */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-5 bg-secondary block rounded-full"></span>
-              Perusahaan
-            </h3>
-            <ul className="space-y-3 text-sm">
-              <li><Link href="/tentang-kami" className="hover:text-white transition-colors">Tentang Kami</Link></li>
-              <li><Link href="/redaksi" className="hover:text-white transition-colors">Susunan Redaksi</Link></li>
-              <li><Link href="/pedoman-siber" className="hover:text-white transition-colors">Pedoman Media Siber</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link></li>
-              <li><Link href="/kebijakan-privasi" className="hover:text-white transition-colors">Kebijakan Privasi</Link></li>
-              <li><Link href="/syarat-ketentuan" className="hover:text-white transition-colors">Syarat & Ketentuan</Link></li>
-              <li><Link href="/karir" className="hover:text-white transition-colors">Karir</Link></li>
-            </ul>
-          </div>
-
-          {/* Kontak & Newsletter */}
-          <div className="space-y-8">
+          {/* Wrapper for Kategori & Perusahaan (Side-by-side on Mobile) */}
+          <div className="grid grid-cols-2 gap-6 lg:col-span-2 lg:grid-cols-2 lg:gap-12">
+            {/* Kategori */}
             <div>
-              <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-                <span className="w-1 h-5 bg-accent block rounded-full"></span>
-                Hubungi Kami
+              <h3 className="text-white font-bold text-base md:text-lg mb-4 md:mb-6 flex items-center gap-2">
+                <span className="w-1 h-4 md:h-5 bg-primary block rounded-full"></span>
+                Kategori
               </h3>
-              <ul className="space-y-4 text-sm">
-                <li className="flex items-start gap-3">
-                  <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
-                  <span className="text-slate-400">Jakarta, Indonesia</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Phone size={18} className="text-primary shrink-0" />
-                  <span className="text-slate-400">08158772217</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Mail size={18} className="text-primary shrink-0" />
-                  <span className="text-slate-400">zonasvaraspace@gmail.com</span>
-                </li>
+              <ul className="space-y-2.5 md:space-y-3 text-xs md:text-sm">
+                <li><Link href="/kategori/news" className="hover:text-white transition-colors">News</Link></li>
+                <li><Link href="/kategori/nasional" className="hover:text-white transition-colors">Nasional</Link></li>
+                <li><Link href="/kategori/politik" className="hover:text-white transition-colors">Politik</Link></li>
+                <li><Link href="/kategori/ekonomi" className="hover:text-white transition-colors">Ekonomi</Link></li>
+                <li><Link href="/kategori/hukum" className="hover:text-white transition-colors">Hukum</Link></li>
+                <li><Link href="/kategori/pendidikan" className="hover:text-white transition-colors block leading-tight">Pendidikan</Link></li>
+                <li><Link href="/kategori/teknologi" className="hover:text-white transition-colors">Teknologi</Link></li>
+                <li><Link href="/kategori/olahraga" className="hover:text-white transition-colors">Olahraga</Link></li>
+                <li><Link href="/kategori/gaya-hidup" className="hover:text-white transition-colors block leading-tight">Gaya Hidup</Link></li>
+                <li><Link href="/kategori/internasional" className="hover:text-white transition-colors block leading-tight">Internasional</Link></li>
               </ul>
             </div>
-            
+
+            {/* Perusahaan */}
             <div>
-              <h4 className="text-white font-semibold text-sm mb-3">Berlangganan Newsletter</h4>
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Email Anda" 
-                  className="bg-slate-800 border-none rounded-l-md px-4 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary text-white"
-                />
-                <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 text-sm font-semibold rounded-r-md transition-colors">
-                  Kirim
-                </button>
-              </div>
+              <h3 className="text-white font-bold text-base md:text-lg mb-4 md:mb-6 flex items-center gap-2">
+                <span className="w-1 h-4 md:h-5 bg-secondary block rounded-full"></span>
+                Perusahaan
+              </h3>
+              <ul className="space-y-2.5 md:space-y-3 text-xs md:text-sm">
+                <li><Link href="/tentang-kami" className="hover:text-white transition-colors block leading-tight">Tentang Kami</Link></li>
+                <li><Link href="/redaksi" className="hover:text-white transition-colors block leading-tight">Susunan Redaksi</Link></li>
+                <li><Link href="/pedoman-siber" className="hover:text-white transition-colors block leading-tight">Pedoman Siber</Link></li>
+                <li><Link href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link></li>
+                <li><Link href="/kebijakan-privasi" className="hover:text-white transition-colors block leading-tight">Kebijakan Privasi</Link></li>
+                <li><Link href="/syarat-ketentuan" className="hover:text-white transition-colors block leading-tight">Syarat & Ketentuan</Link></li>
+                <li><Link href="/karir" className="hover:text-white transition-colors">Karir</Link></li>
+              </ul>
             </div>
+          </div>
+
+          {/* Kontak */}
+          <div>
+            <h3 className="text-white font-bold text-base md:text-lg mb-4 md:mb-6 flex items-center gap-2">
+              <span className="w-1 h-4 md:h-5 bg-accent block rounded-full"></span>
+              Kontak
+            </h3>
+            <ul className="space-y-3 md:space-y-4 text-xs md:text-sm">
+              <li className="flex items-center gap-3">
+                <MapPin size={18} className="text-primary shrink-0" />
+                <span className="text-slate-400">Jakarta, Indonesia</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone size={18} className="text-primary shrink-0" />
+                <span className="text-slate-400">08158772217</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail size={18} className="text-primary shrink-0" />
+                <a href="mailto:zonasvaraspace@gmail.com" className="text-slate-400 hover:text-white transition-colors">
+                  zonasvaraspace@gmail.com
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 

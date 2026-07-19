@@ -49,8 +49,8 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 lg:py-4 flex items-center justify-between">
         
         {/* Mobile Left: Hamburger */}
-        <div className="lg:hidden flex items-center">
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-900 dark:text-white p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+        <div className="lg:hidden flex items-center relative z-50">
+          <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-900 dark:text-white p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer">
             {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
@@ -126,19 +126,19 @@ export function Header() {
       {/* Mobile Menu Drawer */}
       {isMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-background border-b border-border shadow-lg py-4 px-4 flex flex-col gap-4 font-semibold text-sm h-[calc(100vh-100px)] overflow-y-auto">
-          <Link href="/" className="hover:text-primary p-2 border-b border-border">HOME</Link>
-          <Link href="/berita" className="hover:text-primary p-2 border-b border-border">BERITA</Link>
-          <Link href="/kategori" className="hover:text-primary p-2 border-b border-border">KATEGORI</Link>
-          <Link href="/video" className="hover:text-primary p-2 border-b border-border">VIDEO</Link>
-          <Link href="/opini" className="hover:text-primary p-2 border-b border-border">OPINI</Link>
-          <Link href="/indeks" className="hover:text-primary p-2 border-b border-border">INDEKS</Link>
-          <Link href="/login" className="hover:text-primary p-2 border-b border-border">LOGIN</Link>
+          <Link href="/" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">HOME</Link>
+          <Link href="/berita" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">BERITA</Link>
+          <Link href="/kategori" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">KATEGORI</Link>
+          <Link href="/video" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">VIDEO</Link>
+          <Link href="/opini" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">OPINI</Link>
+          <Link href="/indeks" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">INDEKS</Link>
+          <Link href="/login" onClick={() => setIsMenuOpen(false)} className="hover:text-primary p-2 border-b border-border">LOGIN</Link>
           
           <div className="mt-4 flex flex-col gap-4">
             <button onClick={toggleDarkMode} className="flex items-center gap-2 p-2 w-full text-left">
               {isDarkMode ? <><Sun size={18} /> Mode Terang</> : <><Moon size={18} /> Mode Gelap</>}
             </button>
-            <Link href="/live" className="bg-accent text-accent-foreground px-4 py-3 rounded font-bold text-center flex justify-center w-full uppercase">
+            <Link href="/live" onClick={() => setIsMenuOpen(false)} className="bg-accent text-accent-foreground px-4 py-3 rounded font-bold text-center flex justify-center w-full uppercase">
               LIVE STREAMING
             </Link>
           </div>

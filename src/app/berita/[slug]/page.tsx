@@ -200,17 +200,6 @@ export default async function NewsDetail({ params }: { params: Promise<{ slug: s
               </div>
             </div>
 
-            {/* Newsletter */}
-            <div className="bg-primary text-primary-foreground rounded-xl p-6 text-center">
-              <MessageSquare size={32} className="mx-auto mb-4 opacity-80" />
-              <h3 className="font-bold text-xl mb-2 font-heading">Dapatkan Update Terbaru</h3>
-              <p className="text-sm opacity-90 mb-6">Berlangganan newsletter ZONASVARA untuk berita pilihan setiap paginya.</p>
-              <form className="space-y-2">
-                <input type="email" placeholder="Alamat Email Anda" className="w-full px-4 py-2 rounded-md text-foreground focus:outline-none" />
-                <button type="submit" className="w-full bg-foreground text-background font-bold py-2 rounded-md hover:bg-foreground/90 transition-colors">Langganan</button>
-              </form>
-            </div>
-
           </aside>
 
         </div>
