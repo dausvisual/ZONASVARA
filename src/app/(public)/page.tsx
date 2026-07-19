@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 import { format, formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 
+import HeroSlider from "@/components/HeroSlider";
+
 export default async function Home() {
   // Fetch latest published articles from database
   const allNews = await prisma.article.findMany({
@@ -26,9 +28,9 @@ export default async function Home() {
     );
   }
 
-  const heroNews = allNews[0];
-  const popularNews = allNews.slice(1, 5);
-  const editorChoice = allNews.slice(5, 9);
+  const heroNews = allNews.slice(0, 3);
+  const popularNews = allNews.slice(3, 7);
+  const editorChoice = allNews.slice(7, 11);
   
   const formatDate = (date: Date) => format(date, "dd MMM yyyy, HH:mm", { locale: id });
   const formatRelativeTime = (date: Date) => {
@@ -41,41 +43,7 @@ export default async function Home() {
       {/* Mobile Hero Featured Article (Slider Style) */}
       <div className="lg:max-w-7xl lg:mx-auto lg:px-8">
         <section className="px-4 pt-4 pb-6 lg:px-0 lg:pt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 relative group cursor-pointer overflow-hidden rounded-[1.5rem] shadow-xl h-[450px] md:h-[500px]">
-            <Image 
-              src={heroNews.thumbnail || "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=80&w=1000&auto=format&fit=crop"} 
-              alt={heroNews.title} 
-              fill 
-              unoptimized
-              className="object-cover transition-transform duration-700 group-hover:scale-105" 
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050B14] via-[#050B14]/60 to-transparent"></div>
-            
-            <Link href={`/berita/${heroNews.slug}`} className="absolute bottom-0 left-0 p-5 md:p-10 w-full flex flex-col justify-end h-full">
-              {/* Category Badge */}
-              <div className="mb-4 self-start">
-                <span className="bg-[#0f4a8a] text-white text-[10px] md:text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md">
-                  {heroNews.category?.name || "NASIONAL"}
-                </span>
-              </div>
-              
-              <h1 className="text-white text-2xl md:text-4xl font-bold font-heading leading-tight mb-4 group-hover:text-slate-300 transition-colors">
-                {heroNews.title}
-              </h1>
-              
-              <div className="flex items-center gap-2 text-white font-semibold text-sm mb-6 hover:gap-3 transition-all">
-                Baca Selengkapnya <ArrowRight size={16} />
-              </div>
-              
-              {/* Slider Dots */}
-              <div className="flex items-center gap-1.5 mb-2">
-                <div className="w-5 h-1.5 bg-white rounded-full"></div>
-                <div className="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                <div className="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-              </div>
-            </Link>
-          </div>
+          <HeroSlider news={heroNews} />
 
           {/* TERPOPULER Section */}
           <div className="lg:col-span-4 flex flex-col h-full bg-white dark:bg-slate-900 rounded-[1.5rem] p-5 shadow-sm border border-slate-100 dark:border-slate-800">

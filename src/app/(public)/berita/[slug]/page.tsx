@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Calendar, User, Share2, Link as LinkIcon, MessageSquare } from "lucide-react";
+import { ChevronRight, Calendar, User, Link as LinkIcon, MessageSquare, Eye } from "lucide-react";
 import { FaFacebook, FaTwitter } from "react-icons/fa";
 import prisma from "@/lib/prisma";
 import { format } from "date-fns";
@@ -24,18 +24,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   // Menghilangkan tag HTML dari konten untuk description (opsional, max 160 char)
   const plainTextDesc = article.summary || article.content.replace(/<[^>]+>/g, '').substring(0, 160) + "...";
+  const articleUrl = `https://zonasvara.space/berita/${article.slug}`;
 
   return {
-    title: `${article.title} - ZONASVARA SPACE`,
+    title: article.title, // 'title.template' in layout.tsx will append " | ZONASVARA SPACE"
     description: plainTextDesc,
+    alternates: {
+      canonical: articleUrl,
+    },
     openGraph: {
       title: article.title,
       description: plainTextDesc,
-      url: `https://zonasvaraspace.com/berita/${article.slug}`, // ganti dengan domain asli
+      url: articleUrl,
       siteName: 'ZONASVARA SPACE',
       images: [
         {
-          url: article.thumbnail || 'https://zonasvaraspace.com/logo-utama.png', 
+          url: article.thumbnail || 'https://zonasvara.space/logo-utama.png', 
           width: 1200,
           height: 630,
           alt: article.title,
@@ -43,12 +47,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       ],
       type: 'article',
       publishedTime: article.createdAt.toISOString(),
+      modifiedTime: article.updatedAt.toISOString(),
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
       description: plainTextDesc,
-      images: [article.thumbnail || 'https://zonasvaraspace.com/logo-utama.png'],
+      images: [article.thumbnail || 'https://zonasvara.space/logo-utama.png'],
     },
   };
 }
@@ -65,6 +70,12 @@ export default async function NewsDetail({ params }: { params: Promise<{ slug: s
     notFound();
   }
 
+  // Increment view count (fire-and-forget, don't await)
+  prisma.article.update({
+    where: { id: article.id },
+    data: { viewCount: { increment: 1 } },
+  }).catch(() => {});
+
   // Fetch some related news from the same category
   const relatedNews = await prisma.article.findMany({
     where: { 
@@ -79,8 +90,30 @@ export default async function NewsDetail({ params }: { params: Promise<{ slug: s
 
   const formatDate = (date: Date) => format(date, "EEEE, dd MMMM yyyy - HH:mm", { locale: id });
 
+  // Structured Data (JSON-LD) for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: article.title,
+    image: [
+      article.thumbnail || 'https://zonasvara.space/logo-utama.png'
+    ],
+    datePublished: article.createdAt.toISOString(),
+    dateModified: article.updatedAt.toISOString(),
+    author: [{
+      '@type': 'Person',
+      name: article.author?.name || 'Redaksi',
+      url: 'https://zonasvara.space/redaksi'
+    }]
+  };
+
   return (
-    <div className="bg-background min-h-screen">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="bg-background min-h-screen">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         
         {/* Breadcrumbs */}
@@ -103,12 +136,6 @@ export default async function NewsDetail({ params }: { params: Promise<{ slug: s
             
             {/* Article Header */}
             <header className="mb-8 space-y-6">
-              {article.category && (
-                <Link href={`/kategori/${article.category.slug}`} className="inline-block bg-primary/10 text-primary font-bold px-3 py-1 rounded-md text-xs uppercase tracking-wider hover:bg-primary hover:text-white transition-colors">
-                  {article.category.name}
-                </Link>
-              )}
-              
               <h1 className="text-3xl md:text-5xl font-bold font-heading leading-tight">
                 {article.title}
               </h1>
@@ -159,9 +186,51 @@ export default async function NewsDetail({ params }: { params: Promise<{ slug: s
             </div>
 
             {/* Article Body */}
-            <div className="prose prose-lg prose-slate dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl">
-              <div dangerouslySetInnerHTML={{ __html: article.content }}></div>
-            </div>
+            {(() => {
+              const externalDomains = [
+                'detik.com', 'cnnindonesia.com', 'tempo.co', 'antaranews.com',
+                'kompas.com', 'tribunnews.com', 'cnbcindonesia.com', 'merdeka.com',
+                'republika.co.id', 'okezone.com', 'liputan6.com', 'suara.com',
+                'cantika.com', 'cnn.com', 'bbc.com', 'reuters.com', 'aa.com.tr',
+              ];
+              const articleSource = (article as any).source || '';
+              const isDummyArticle = externalDomains.some(d => articleSource.includes(d));
+
+              if (isDummyArticle) {
+                const urlMatch = article.content.match(/href="([^"]+)"/);
+                const originalUrl = urlMatch ? urlMatch[1] : null;
+                return (
+                  <div className="prose prose-lg prose-slate dark:prose-invert max-w-none">
+                    <p className="text-lg leading-relaxed text-slate-800 dark:text-slate-200">
+                      {article.summary || article.content.replace(/<[^>]+>/g, '').substring(0, 300) + '...'}
+                    </p>
+                    <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
+                      <p className="text-sm italic text-slate-500 font-medium">
+                        * Disclaimer: Berita ini merupakan kutipan singkat yang ditujukan sebagai contoh tampilan (mockup) website ZONASVARA SPACE.
+                        <br /><br />
+                        Credit: {articleSource}
+                        {originalUrl && (
+                          <a href={originalUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-2">
+                            (Sumber Asli)
+                          </a>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="prose prose-lg prose-slate dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl">
+                  <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                  {articleSource && (
+                    <p className="text-sm text-muted-foreground mt-8 pt-4 border-t border-border">
+                      Sumber: {articleSource}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
 
           </article>
 
@@ -204,6 +273,7 @@ export default async function NewsDetail({ params }: { params: Promise<{ slug: s
 
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

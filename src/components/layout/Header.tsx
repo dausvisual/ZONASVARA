@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 
-export function Header() {
+export function Header({ breakingNews = [] }: { breakingNews?: string[] }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   
@@ -118,7 +118,9 @@ export function Header() {
         </div>
         <div className="overflow-hidden whitespace-nowrap flex-grow flex items-center h-full px-4 text-xs md:text-sm font-medium">
           <p className="animate-marquee inline-block text-slate-200">
-            Pemerintah Dorong Transformasi Digital di Sektor Pendidikan • Inflasi April 2024 Terkendali • Pemilu 2024 Partisipasi Masyarakat Meningkat
+            {breakingNews.length > 0 
+              ? breakingNews.join(" • ") 
+              : "Pemerintah Dorong Transformasi Digital di Sektor Pendidikan • Inflasi April 2024 Terkendali • Pemilu 2024 Partisipasi Masyarakat Meningkat"}
           </p>
         </div>
       </div>

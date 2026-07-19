@@ -1,15 +1,42 @@
 import Link from "next/link";
-import { auth, signOut } from "@/auth";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Settings, 
+import { auth } from "@/auth";
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  Settings,
   Image as ImageIcon,
-  LogOut,
   Tag,
-  Menu
+  PenSquare,
 } from "lucide-react";
+import { AdminBottomNav } from "@/components/admin/AdminBottomNav";
+import { SignOutButton } from "@/components/admin/SignOutButton";
+
+const sidebarLinks = [
+  {
+    section: null,
+    links: [{ href: "/admin", icon: LayoutDashboard, label: "Dashboard" }],
+  },
+  {
+    section: "Berita",
+    links: [
+      { href: "/admin/articles", icon: FileText, label: "Semua Artikel" },
+      { href: "/admin/articles/create", icon: PenSquare, label: "Tulis Artikel Baru" },
+      { href: "/admin/categories", icon: Tag, label: "Kategori" },
+    ],
+  },
+  {
+    section: "Media",
+    links: [{ href: "/admin/media", icon: ImageIcon, label: "Galeri & Media" }],
+  },
+  {
+    section: "Sistem",
+    links: [
+      { href: "/admin/users", icon: Users, label: "Pengguna & Role" },
+      { href: "/admin/settings", icon: Settings, label: "Pengaturan" },
+    ],
+  },
+];
 
 export default async function AdminLayout({
   children,
@@ -17,101 +44,91 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex relative overflow-hidden">
-      
-      {/* CSS-only Toggle Checkbox */}
-      <input type="checkbox" id="mobile-sidebar-toggle" className="peer hidden" />
-      
-      {/* Mobile Overlay */}
-      <label htmlFor="mobile-sidebar-toggle" className="fixed inset-0 bg-black/60 z-40 hidden peer-checked:block lg:hidden cursor-pointer backdrop-blur-sm transition-opacity" />
+  const userName = session?.user?.name || "Admin";
+  const userEmail = session?.user?.email || "";
+  const userInitial = userName.charAt(0).toUpperCase();
 
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col transform -translate-x-full peer-checked:translate-x-0 lg:relative lg:translate-x-0 transition-transform duration-300 shadow-2xl lg:shadow-none">
+  return (
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 flex">
+
+      {/* ── Desktop Sidebar ── */}
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-slate-900 text-slate-300 min-h-screen sticky top-0">
         <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950 shrink-0">
           <span className="text-white font-bold font-heading text-lg tracking-wide">ZONASVARA CMS</span>
         </div>
-        
-        <div className="p-4 flex-grow overflow-y-auto">
-          <nav className="space-y-1">
-            <Link href="/admin" className="flex items-center gap-3 px-3 py-2 rounded-md bg-primary text-white font-medium text-sm">
-              <LayoutDashboard size={18} /> Dashboard
-            </Link>
-            
-            <div className="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Berita</div>
-            <Link href="/admin/articles" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm">
-              <FileText size={18} /> Semua Artikel
-            </Link>
-            <Link href="/admin/articles/create" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm">
-              <FileText size={18} /> Tulis Artikel Baru
-            </Link>
-            <Link href="/admin/categories" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm">
-              <Tag size={18} /> Kategori
-            </Link>
-            
-            <div className="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Media</div>
-            <Link href="/admin/media" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm">
-              <ImageIcon size={18} /> Galeri & Media
-            </Link>
-            
-            <div className="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Sistem</div>
-            <Link href="/admin/users" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm">
-              <Users size={18} /> Pengguna & Role
-            </Link>
-            <Link href="/admin/settings" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm">
-              <Settings size={18} /> Pengaturan
-            </Link>
-          </nav>
-        </div>
-        
-        <div className="p-4 border-t border-slate-800 shrink-0">
-          <form action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}>
-            <button type="submit" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-500/10 text-red-400 w-full transition-colors text-sm">
-              <LogOut size={18} /> Keluar
-            </button>
-          </form>
+
+        <nav className="flex-grow overflow-y-auto p-3 space-y-1">
+          {sidebarLinks.map((group, gi) => (
+            <div key={gi}>
+              {group.section && (
+                <div className="pt-4 pb-1 px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+                  {group.section}
+                </div>
+              )}
+              {group.links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors text-sm"
+                >
+                  <link.icon size={16} />
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-slate-800 shrink-0 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+              {userInitial}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white truncate">{userName}</p>
+              <p className="text-[11px] text-slate-500 truncate">{userEmail}</p>
+            </div>
+          </div>
+          <SignOutButton variant="full" />
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
-        {/* Top Header */}
-        <header className="h-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 lg:px-8 shrink-0 relative z-30">
-          <div className="flex items-center gap-4">
-            <label htmlFor="mobile-sidebar-toggle" className="lg:hidden text-slate-600 dark:text-slate-300 p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md cursor-pointer relative z-50 block">
-              <Menu size={24} />
-            </label>
-            <h1 className="text-base md:text-lg font-semibold font-heading">CMS Dashboard</h1>
-          </div>
+      {/* ── Main ── */}
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
 
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="text-sm text-right hidden sm:block">
-              <p className="font-semibold text-slate-900 dark:text-white leading-tight">{session?.user?.name || "Admin"}</p>
-              <p className="text-xs text-slate-500">{session?.user?.email || "Super Admin"}</p>
+        {/* ── Mobile Top Bar ── */}
+        <header className="lg:hidden sticky top-0 z-40 h-14 bg-slate-900 text-white flex items-center justify-between px-4 shadow-lg shrink-0">
+          <span className="font-bold font-heading text-sm tracking-wide">ZONASVARA CMS</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-primary font-bold text-sm select-none">
+              {userInitial}
             </div>
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shadow-sm text-sm md:text-base">
-              {session?.user?.name?.charAt(0).toUpperCase() || "A"}
-            </div>
-            
-            <form action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}>
-              <button type="submit" title="Keluar" className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center transition-colors">
-                <LogOut size={18} />
-              </button>
-            </form>
+            <SignOutButton variant="icon" />
           </div>
         </header>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+        {/* ── Desktop Top Bar ── */}
+        <header className="hidden lg:flex h-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 items-center justify-between px-8 shrink-0 sticky top-0 z-30">
+          <h1 className="text-lg font-semibold font-heading text-slate-800 dark:text-white">CMS Dashboard</h1>
+          <div className="flex items-center gap-4 text-sm text-right">
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-white leading-tight">{userName}</p>
+              <p className="text-xs text-slate-500">{userEmail}</p>
+            </div>
+            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shadow-sm">
+              {userInitial}
+            </div>
+          </div>
+        </header>
+
+        {/* ── Page Content ── */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
+
+      {/* ── Mobile Bottom Nav (pure navigation only) ── */}
+      <AdminBottomNav />
     </div>
   );
 }

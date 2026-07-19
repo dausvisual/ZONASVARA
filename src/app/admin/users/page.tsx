@@ -1,9 +1,12 @@
 import prisma from "@/lib/prisma";
-import { Users, Shield, UserCheck, Clock } from "lucide-react";
+import { Users, Shield, UserCheck, Clock, Plus, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { auth } from "@/auth";
+import { deleteUser } from "@/app/actions/user";
 
 const ROLE_LABELS: Record<string, string> = {
   SUPER_ADMIN: "Super Admin",
-  CHIEF_EDITOR: "Pemimpin Redaksi",
+  CHIEF_EDITOR: "Pimred",
   EDITOR: "Editor",
   JOURNALIST: "Jurnalis",
   CONTRIBUTOR: "Kontributor",
@@ -22,12 +25,13 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default async function AdminUsersPage() {
+  const session = await auth();
+  const isSuperAdmin = (session?.user as any)?.role === "SUPER_ADMIN";
+
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      _count: {
-        select: { articlesAuthored: true },
-      },
+      _count: { select: { articlesAuthored: true } },
     },
   });
 
@@ -44,99 +48,141 @@ export default async function AdminUsersPage() {
   ];
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">
-          Pengguna &amp; Role
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Kelola akun pengguna dan hak akses sistem
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold font-heading">Pengguna &amp; Role</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">Kelola akun pengguna dan hak akses sistem</p>
+        </div>
+        {isSuperAdmin && (
+          <Link href="/admin/users/create" className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors text-sm shrink-0">
+            <Plus size={16} /> Tambah Pengguna
+          </Link>
+        )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats - 2 col on mobile */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => (
-          <div
-            key={s.label}
-            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex items-center gap-4"
-          >
-            <div className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${s.color}`}>
-              <s.icon size={20} />
+          <div key={s.label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 md:p-5 flex items-center gap-3">
+            <div className={`p-2 rounded-lg bg-slate-100 dark:bg-slate-800 ${s.color} shrink-0`}>
+              <s.icon size={18} />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{s.value}</p>
-              <p className="text-xs text-slate-500">{s.label}</p>
+            <div className="min-w-0">
+              <p className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white leading-tight">{s.value}</p>
+              <p className="text-[10px] md:text-xs text-slate-500 leading-snug">{s.label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Users Table */}
+      {/* Users — Card list on mobile, Table on desktop */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="px-4 md:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Pengguna</h2>
-          <span className="text-sm text-slate-500">{users.length} pengguna terdaftar</span>
+          <span className="text-xs text-slate-500">{users.length} terdaftar</span>
         </div>
 
         {users.length === 0 ? (
           <div className="py-16 text-center text-slate-400">
             <Users size={40} className="mx-auto mb-3 opacity-30" />
-            <p>Belum ada pengguna terdaftar</p>
+            <p className="text-sm">Belum ada pengguna terdaftar</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
-                  <th className="px-6 py-3">Pengguna</th>
-                  <th className="px-6 py-3">Role</th>
-                  <th className="px-6 py-3">Artikel Ditulis</th>
-                  <th className="px-6 py-3">Bergabung</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                          {(user.name || user.email || "?")[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-900 dark:text-white">
-                            {user.name || "—"}
-                          </p>
-                          <p className="text-xs text-slate-400">{user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[user.role] || ""}`}
-                      >
+          <>
+            {/* Mobile Cards */}
+            <div className="lg:hidden divide-y divide-slate-100 dark:divide-slate-800">
+              {users.map((user) => (
+                <div key={user.id} className="p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                    {(user.name || user.email || "?")[0].toUpperCase()}
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <p className="font-medium text-sm text-slate-900 dark:text-white truncate">{user.name || "—"}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${ROLE_COLORS[user.role] || ""}`}>
                         {ROLE_LABELS[user.role] || user.role}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                      {user._count.articlesAuthored} artikel
-                    </td>
-                    <td className="px-6 py-4 text-slate-500 text-xs">
-                      {new Date(user.createdAt).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </td>
+                      <span className="text-[10px] text-slate-400">{user._count.articlesAuthored} artikel</span>
+                    </div>
+                  </div>
+                  {isSuperAdmin && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Link href={`/admin/users/${user.id}/edit`} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Edit">
+                        <Edit size={15} />
+                      </Link>
+                      {session?.user?.id !== user.id && (
+                        <form action={async () => { "use server"; await deleteUser(user.id); }}>
+                          <button type="submit" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors" title="Hapus">
+                            <Trash2 size={15} />
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+                    <th className="px-6 py-3">Pengguna</th>
+                    <th className="px-6 py-3">Role</th>
+                    <th className="px-6 py-3">Artikel</th>
+                    <th className="px-6 py-3">Bergabung</th>
+                    {isSuperAdmin && <th className="px-6 py-3 text-right">Aksi</th>}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                            {(user.name || user.email || "?")[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900 dark:text-white">{user.name || "—"}</p>
+                            <p className="text-xs text-slate-400">{user.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[user.role] || ""}`}>
+                          {ROLE_LABELS[user.role] || user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{user._count.articlesAuthored}</td>
+                      <td className="px-6 py-4 text-slate-500 text-xs">
+                        {new Date(user.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </td>
+                      {isSuperAdmin && (
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <Link href={`/admin/users/${user.id}/edit`} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Edit">
+                              <Edit size={16} />
+                            </Link>
+                            {session?.user?.id !== user.id && (
+                              <form action={async () => { "use server"; await deleteUser(user.id); }}>
+                                <button type="submit" className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors" title="Hapus">
+                                  <Trash2 size={16} />
+                                </button>
+                              </form>
+                            )}
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -6,6 +6,7 @@ import fs from "fs/promises";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
 import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
 
 cloudinary.config({
   cloud_name: 'ispjadjc',
@@ -49,8 +50,31 @@ export async function getOrCreateCategory(name: string) {
   return category;
 }
 
+export async function getOrCreateJournalist() {
+  let user = await prisma.user.findFirst({
+    where: { email: "jurnalis@zonasvaraspace.com" }
+  });
+  if (!user) {
+    const hashedPassword = await bcrypt.hash("jurnalis123", 10);
+    user = await prisma.user.create({
+      data: {
+        name: "Jurnalis Zonasvara",
+        email: "jurnalis@zonasvaraspace.com",
+        password: hashedPassword,
+        role: "CONTRIBUTOR",
+      },
+    });
+  }
+  return user;
+}
+
 export async function getArticles() {
+  const session = await auth();
+  const isContributor = session?.user && (session.user as any).role === "CONTRIBUTOR";
+  const authorId = session?.user?.id as string | undefined;
+
   return await prisma.article.findMany({
+    where: isContributor && authorId ? { authorId } : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       category: true,
@@ -63,6 +87,7 @@ export async function createArticle(formData: FormData) {
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
   const categoryName = formData.get("category") as string;
+  const source = formData.get("source") as string;
   let imageUrl = formData.get("image") as string;
   
   const imageFile = formData.get("imageFile") as File | null;
@@ -93,7 +118,24 @@ export async function createArticle(formData: FormData) {
       });
     }
 
-    const user = await getOrCreateDummyUser();
+    const session = await auth();
+    if (!session?.user) {
+      return { error: "Anda belum login." };
+    }
+
+    // Generate dummy journalist so the account is ready
+    await getOrCreateJournalist();
+
+    let authorId = session.user.id as string;
+    const dbUser = await prisma.user.findUnique({ where: { id: authorId } });
+    if (!dbUser) {
+      const admin = await getOrCreateDummyUser();
+      authorId = admin.id;
+    }
+    
+    const role = (session.user as any).role;
+    const status = role === "CONTRIBUTOR" ? "PENDING_REVIEW" : "PUBLISHED";
+
     const category = await getOrCreateCategory(categoryName);
     
     await prisma.article.create({
@@ -104,8 +146,10 @@ export async function createArticle(formData: FormData) {
         summary: content.replace(/<[^>]+>/g, "").substring(0, 150) + "...",
         thumbnail: imageUrl || null,
         categoryId: category.id,
-        authorId: user.id,
-        status: "PUBLISHED",
+        authorId: authorId,
+        status: status,
+        // @ts-ignore - source added in schema but needs prisma generate
+        source: source || null,
       }
     });
     
@@ -135,6 +179,80 @@ export async function deleteArticle(id: string) {
     await prisma.article.delete({ where: { id } });
     revalidatePath("/admin/articles");
     revalidatePath("/");
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function approveArticle(id: string) {
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    return { error: "Hanya Super Admin yang dapat menyetujui artikel." };
+  }
+
+  try {
+    await prisma.article.update({
+      where: { id },
+      data: { status: "PUBLISHED" }
+    });
+    revalidatePath("/admin/articles");
+    revalidatePath("/");
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function updateArticle(id: string, formData: FormData) {
+  try {
+    const session = await auth();
+    if (!session?.user) return { error: "Tidak terautentikasi." };
+
+    const title = formData.get("title") as string;
+    const content = formData.get("content") as string;
+    const categoryName = formData.get("category") as string;
+    const source = formData.get("source") as string;
+    const status = formData.get("status") as string;
+    let imageUrl = formData.get("image") as string;
+
+    const imageFile = formData.get("imageFile") as File | null;
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "zonasvara" },
+          (error, result) => {
+            if (error || !result) reject(error);
+            else resolve(result as { secure_url: string });
+          }
+        ).end(buffer);
+      });
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const category = await getOrCreateCategory(categoryName);
+
+    const updateData: any = {
+      title,
+      content,
+      summary: content.replace(/<[^>]+>/g, "").substring(0, 150) + "...",
+      categoryId: category.id,
+      // @ts-ignore
+      source: source || null,
+    };
+
+    if (status) updateData.status = status;
+    if (imageUrl) updateData.thumbnail = imageUrl;
+
+    await prisma.article.update({
+      where: { id },
+      data: updateData,
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/articles");
     return { success: true };
   } catch (err: any) {
     return { error: err.message };

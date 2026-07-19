@@ -3,7 +3,7 @@
 import { useFormStatus } from "react-dom";
 import { Save, Loader2 } from "lucide-react";
 
-export function SubmitButton() {
+export function SubmitButton({ text = "Terbitkan Artikel" }: { text?: string }) {
   const { pending } = useFormStatus();
 
   return (
@@ -17,7 +17,7 @@ export function SubmitButton() {
       ) : (
         <Save size={18} />
       )}
-      {pending ? "Mengunggah Data..." : "Terbitkan Artikel"}
+      {pending ? "Mengunggah Data..." : text}
     </button>
   );
 }

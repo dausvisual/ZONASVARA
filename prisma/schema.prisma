@@ -141,6 +141,7 @@ model Article {
   seoTitle         String?
   metaDescription  String?
   keywords         String?
+  source           String?
   
   publishedAt      DateTime?
   status           ArticleStatus @default(DRAFT)
