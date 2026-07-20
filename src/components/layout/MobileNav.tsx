@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, PlaySquare, MessageSquare, User } from "lucide-react";
+import { Home, LayoutGrid, PlaySquare, MessageSquare, Newspaper } from "lucide-react";
 
 export function MobileNav() {
   const pathname = usePathname();
 
   const navItems = [
     { label: "Beranda", icon: Home, href: "/" },
+    { label: "Berita", icon: Newspaper, href: "/berita" },
     { label: "Kategori", icon: LayoutGrid, href: "/kategori" },
     { label: "Video", icon: PlaySquare, href: "/video" },
     { label: "Opini", icon: MessageSquare, href: "/opini" },
@@ -24,7 +25,7 @@ export function MobileNav() {
             <Link 
               key={item.href} 
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 p-2 w-[25%] transition-colors ${isActive ? "text-white" : "hover:text-white"}`}
+              className={`flex flex-col items-center justify-center gap-1 p-2 flex-1 transition-colors ${isActive ? "text-white" : "hover:text-white"}`}
             >
               <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
               <span className="text-[10px] font-medium">{item.label}</span>

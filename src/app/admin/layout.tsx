@@ -52,7 +52,7 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900 flex">
 
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-slate-900 text-slate-300 min-h-screen sticky top-0">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-slate-900 text-slate-300 h-screen sticky top-0">
         <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950 shrink-0">
           <span className="text-white font-bold font-heading text-lg tracking-wide">ZONASVARA CMS</span>
         </div>
